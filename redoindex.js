@@ -60,8 +60,13 @@ store.dispatch(orderCake())
 store.dispatch(orderCake(3))
 store.dispatch(orderCake(2))
 store.dispatch(restockCake())
-store.dispatch(orderCake(5))
-store.dispatch(orderCake(2))
-store.dispatch(restockCake())
+
+console.log('use action binds creator')
+//other way use bind action creator
+const bindActionCreators = redux.bindActionCreators
+const actions = bindActionCreators({orderCake, restockCake}, store.dispatch)
+actions.orderCake(5)
+actions.orderCake(2)
+actions.restockCake()
 
 unsubscribe()
