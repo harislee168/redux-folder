@@ -1,9 +1,11 @@
 //initialize the required variables
 const redux = require('redux')
 const CAKE_ORDERED = 'CAKE_ORDERED'
+const CAKE_RESTOCKED = 'CAKE_RESTOCKED'
 const initialState = {
   numOfCakes: 10,
-  otherProperty: 0
+  numofCakesToRestock: 0,
+  totalNoOfCakesSold: 0
 }
 
 //first create the action! What is an action?
@@ -12,17 +14,36 @@ const initialState = {
 const orderCake = (orderQuantity=1) => {
   return {
     type: CAKE_ORDERED,
-    orderQuantity: orderQuantity
+    payload: {
+      orderQuantity: orderQuantity
+    }
+  }
+}
+
+const restockCake = () => {
+  return {
+    type: CAKE_RESTOCKED,
   }
 }
 
 //second create the reducer!
 //reducer is an arrow function which has 3 parameters such as (state = initialState, action)
 //reducer will transform the prevState and return a newState based on the action.type
+//this is where the algorithm, logic and calculation process takes place
 const reducer = (state = initialState, action) => {
   switch (action.type) {
     case CAKE_ORDERED:
-      return {...state, numOfCakes: state.numOfCakes - action.orderQuantity}
+      const tempOrderQuantity = action.payload.orderQuantity
+      return {...state,
+        numOfCakes: state.numOfCakes - tempOrderQuantity,
+        numofCakesToRestock: state.numofCakesToRestock + tempOrderQuantity,
+        totalNoOfCakesSold: state.totalNoOfCakesSold + tempOrderQuantity
+      }
+    case CAKE_RESTOCKED:
+      return {...state,
+        numOfCakes: state.numOfCakes + state.numofCakesToRestock,
+        numofCakesToRestock: initialState.numofCakesToRestock
+      }
     default:
       return state
   }
@@ -38,5 +59,9 @@ const unsubscribe = store.subscribe(() => {console.log('Updated state:', store.g
 store.dispatch(orderCake())
 store.dispatch(orderCake(3))
 store.dispatch(orderCake(2))
+store.dispatch(restockCake())
+store.dispatch(orderCake(5))
+store.dispatch(orderCake(2))
+store.dispatch(restockCake())
 
 unsubscribe()
