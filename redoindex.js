@@ -2,10 +2,19 @@
 const redux = require('redux')
 const CAKE_ORDERED = 'CAKE_ORDERED'
 const CAKE_RESTOCKED = 'CAKE_RESTOCKED'
-const initialState = {
+const ICE_CREAM_ORDERED = 'ICE_CREAM_ORDERED'
+const ICE_CREAM_RESTOCKED = 'ICE_CREAM_RESTOCKED'
+
+const initialCakeState = {
   numOfCakes: 10,
-  numofCakesToRestock: 0,
-  totalNoOfCakesSold: 0
+  numOfCakesToRestock: 0,
+  totalNoOfCakesSold: 0,
+}
+
+const initialIceCreamState = {
+  numOfIceCreams: 20,
+  numOfIceCreamsToRestock: 0,
+  totalNoOfIceCreamsSold: 0
 }
 
 //first create the action! What is an action?
@@ -26,47 +35,86 @@ const restockCake = () => {
   }
 }
 
+const orderIceCream = (orderQuantity=1) => {
+  return {
+    type: ICE_CREAM_ORDERED,
+    payload: {
+      orderQuantity: orderQuantity
+    }
+  }
+}
+
+const restockIceCream = () => {
+  return {
+    type: ICE_CREAM_RESTOCKED
+  }
+}
+
 //second create the reducer!
 //reducer is an arrow function which has 3 parameters such as (state = initialState, action)
 //reducer will transform the prevState and return a newState based on the action.type
 //this is where the algorithm, logic and calculation process takes place
-const reducer = (state = initialState, action) => {
+const cakeReducer = (state = initialCakeState, action) => {
   switch (action.type) {
     case CAKE_ORDERED:
       const tempOrderQuantity = action.payload.orderQuantity
       return {...state,
         numOfCakes: state.numOfCakes - tempOrderQuantity,
-        numofCakesToRestock: state.numofCakesToRestock + tempOrderQuantity,
+        numOfCakesToRestock: state.numOfCakesToRestock + tempOrderQuantity,
         totalNoOfCakesSold: state.totalNoOfCakesSold + tempOrderQuantity
       }
     case CAKE_RESTOCKED:
       return {...state,
-        numOfCakes: state.numOfCakes + state.numofCakesToRestock,
-        numofCakesToRestock: initialState.numofCakesToRestock
+        numOfCakes: state.numOfCakes + state.numOfCakesToRestock,
+        numOfCakesToRestock: initialCakeState.numOfCakesToRestock
       }
     default:
       return state
   }
 }
 
+const iceCreamReducer = (state = initialIceCreamState, action) => {
+  switch(action.type) {
+    case ICE_CREAM_ORDERED:
+      return {
+        ...state,
+        numOfIceCreams: state.numOfIceCreams - action.payload.orderQuantity,
+        numOfIceCreamsToRestock: state.numOfIceCreamsToRestock + action.payload.orderQuantity,
+        totalNoOfIceCreamsSold: state.totalNoOfIceCreamsSold + action.payload.orderQuantity
+      }
+    case ICE_CREAM_RESTOCKED:
+      return {
+        ...state,
+        numOfIceCreams: state.numOfIceCreams + state.numOfIceCreamsToRestock,
+        numOfIceCreamsToRestock: initialIceCreamState.numOfIceCreamsToRestock
+      }
+    default:
+      return state
+  }
+}
+
+const rootReducer = redux.combineReducers({
+  cake: cakeReducer,
+  iceCream: iceCreamReducer
+})
+
 //create store to hold the state! reducer has the initialState object
-const store = redux.createStore(reducer)
+const store = redux.createStore(rootReducer)
 console.log('Initial state is:', store.getState())
 
 //subscribe
 const unsubscribe = store.subscribe(() => {console.log('Updated state:', store.getState())})
 
 store.dispatch(orderCake())
-store.dispatch(orderCake(3))
 store.dispatch(orderCake(2))
 store.dispatch(restockCake())
 
 console.log('use action binds creator')
 //other way use bind action creator
 const bindActionCreators = redux.bindActionCreators
-const actions = bindActionCreators({orderCake, restockCake}, store.dispatch)
-actions.orderCake(5)
-actions.orderCake(2)
-actions.restockCake()
+const actions = bindActionCreators({orderIceCream, restockIceCream}, store.dispatch)
+actions.orderIceCream(5)
+actions.orderIceCream(2)
+actions.restockIceCream()
 
 unsubscribe()
