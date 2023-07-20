@@ -1,5 +1,9 @@
 //initialize the required variables
 const redux = require('redux')
+const reduxLogger = require('redux-logger')
+const applyMiddleWare = redux.applyMiddleware
+const logger = reduxLogger.createLogger()
+
 const CAKE_ORDERED = 'CAKE_ORDERED'
 const CAKE_RESTOCKED = 'CAKE_RESTOCKED'
 const ICE_CREAM_ORDERED = 'ICE_CREAM_ORDERED'
@@ -99,11 +103,11 @@ const rootReducer = redux.combineReducers({
 })
 
 //create store to hold the state! reducer has the initialState object
-const store = redux.createStore(rootReducer)
+const store = redux.createStore(rootReducer, applyMiddleWare(logger))
 console.log('Initial state is:', store.getState())
 
 //subscribe
-const unsubscribe = store.subscribe(() => {console.log('Updated state:', store.getState())})
+const unsubscribe = store.subscribe(() => {})
 
 store.dispatch(orderCake())
 store.dispatch(orderCake(2))
